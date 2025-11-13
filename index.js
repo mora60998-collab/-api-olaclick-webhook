@@ -55,3 +55,33 @@ import bodyParser from "body-parser";
 import fs from "fs";
 import XLSX from "xlsx";
 import { google } from "googleapis";
+const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+
+const auth = new google.auth.GoogleAuth({
+  credentials: serviceAccount,
+  scopes: ["https://www.googleapis.com/auth/drive.file"],
+});
+
+const drive = google.drive({ version: "v3", auth });
+async function subirExcelAGoogleDrive() {
+  const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+
+  const fileMetadata = {
+    name: "ventas.xlsx",
+    parents: [folderId],
+  };
+
+  const media = {
+    mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    body: fs.createReadStream("ventas.xlsx"),
+  };
+
+  await drive.files.create({
+    resource: fileMetadata,
+    media: media,
+    fields: "id",
+  });
+
+  console.log("✅ Archivo ventas.xlsx subido correctamente a Google Drive");
+}
+await subirExcelAGoogleDrive();
