@@ -12,8 +12,28 @@ const ACK_BASE =
   process.env.OLACLICK_ACK_BASE ||
   "https://api.olaclick.app/ms-notifications/public/integrations/webhook-events/";
 const OUTGOING_AUTH_HEADER = process.env.OUTGOING_AUTH_HEADER || "";
-const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
-const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
+
+// 🧩 Verificación detallada de las variables antes de usarlas
+console.log("🔍 Verificando variables de entorno...");
+console.log(
+  "GOOGLE_DRIVE_FOLDER_ID:",
+  process.env.GOOGLE_DRIVE_FOLDER_ID ? "✅ Cargada" : "❌ No encontrada"
+);
+console.log(
+  "GOOGLE_SERVICE_ACCOUNT:",
+  process.env.GOOGLE_SERVICE_ACCOUNT ? "✅ Cargada" : "❌ No encontrada"
+);
+
+try {
+  const testJson = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+  console.log("👤 Cuenta del servicio:", testJson.client_email);
+} catch (err) {
+  console.error("⚠️ Error al parsear GOOGLE_SERVICE_ACCOUNT:", err.message);
+}
+
+// 🔹 Carga las variables (una vez verificado que existen)
+const GOOGLE_SERVICE_ACCOUNT = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT || "{}");
+const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || "";
 
 // 🔹 Configura autenticación con Google Drive
 const auth = new google.auth.GoogleAuth({
@@ -33,6 +53,9 @@ async function subirExcelAGoogleDrive() {
       return;
     }
 
+    console.log("📁 Subiendo a carpeta:", GOOGLE_DRIVE_FOLDER_ID);
+    console.log("👤 Con usuario:", GOOGLE_SERVICE_ACCOUNT.client_email);
+
     const fileMetadata = {
       name: fileName,
       parents: [GOOGLE_DRIVE_FOLDER_ID],
@@ -44,13 +67,13 @@ async function subirExcelAGoogleDrive() {
       body: fs.createReadStream("ventas.xlsx"),
     };
 
-    await drive.files.create({
+    const response = await drive.files.create({
       resource: fileMetadata,
       media: media,
       fields: "id",
     });
 
-    console.log(`✅ ${fileName} subido correctamente a Google Drive`);
+    console.log(`✅ ${fileName} subido correctamente a Google Drive (ID: ${response.data.id})`);
   } catch (error) {
     console.error("❌ Error subiendo archivo a Google Drive:", error);
   }
