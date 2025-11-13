@@ -85,3 +85,8 @@ async function subirExcelAGoogleDrive() {
   console.log("✅ Archivo ventas.xlsx subido correctamente a Google Drive");
 }
 await subirExcelAGoogleDrive();
+const fileMetadata = {
+  name: `ventas-${new Date().toISOString().split("T")[0]}.xlsx`,
+  parents: [folderId],
+};
+
