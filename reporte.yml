@@ -1,0 +1,29 @@
+name: Ejecutar Report.js automáticamente
+
+on:
+  schedule:
+    - cron: "0 22 * * *"   # Corre todos los días a las 22:00 UTC (17:00 COLOMBIA)
+  workflow_dispatch:       # Permite ejecutarlo manualmente desde GitHub Actions
+
+jobs:
+  run-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Ejecutar report.js
+        env:
+          API_KEY: ${{ secrets.OLACLICK_API_KEY }}
+          API_SECRET: ${{ secrets.OLACLICK_API_SECRET }}
+          TOKEN_AMALGAM: ${{ secrets.TOKEN_AMALGAM }}
+        run: node report.js
