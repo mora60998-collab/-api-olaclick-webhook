@@ -3,7 +3,7 @@ name: Ejecutar Index.js automáticamente (03:00 Colombia)
 
 on:
   schedule:
-    - cron: "0 8 * * *"   # 08:00 UTC = 03:00 Colombia
+    - cron: "0 8 * * *" # 08:00 UTC = 03:00 Colombia
   workflow_dispatch:
 
 jobs:
